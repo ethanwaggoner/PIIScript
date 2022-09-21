@@ -195,7 +195,6 @@ class Scanner:
             pii_type = "Social Security Number"
             self.output(pii_type, filename, pii)
 
-    # Processes Credit Cards from the data and prepares the data for output
     def cc_process(self, data: str, filename: str):
 
         """Processes Credit Cards from the data and prepares the data for output"""
