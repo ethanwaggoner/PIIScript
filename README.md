@@ -27,6 +27,4 @@ If PII is detected, the output CSV file will be created.
 
 ![img.png](img.png)
 
-![Alt Text](https://i.gyazo.com/87c19d2fc69679a6c1a6872a96924912.gif)
-
 
