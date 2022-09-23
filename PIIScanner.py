@@ -168,7 +168,7 @@ class Scanner:
 
         self.PatternMatching = PatternMatching()
 
-    def output(self, pii_type: str, location: str, pii: str):
+    def __output(self, pii_type: str, location: str, pii: str):
 
         """Appends metadata on PII to the given CSV file"""
 
@@ -185,7 +185,7 @@ class Scanner:
         else:
             df.to_csv(self.output_path, sep=',', index=False)
 
-    def ssn_process(self, data: str, filename: str):
+    def __ssn_process(self, data: str, filename: str):
 
         """Processes Social Security Numbers from the data and prepares the data for output"""
 
@@ -193,9 +193,9 @@ class Scanner:
 
         for pii in ssn_pii:
             pii_type = "Social Security Number"
-            self.output(pii_type, filename, pii)
+            self.__output(pii_type, filename, pii)
 
-    def cc_process(self, data: str, filename: str):
+    def __cc_process(self, data: str, filename: str):
 
         """Processes Credit Cards from the data and prepares the data for output"""
 
@@ -203,41 +203,43 @@ class Scanner:
 
         for pii in cc_pii:
             pii_type = "Credit Card Number"
-            self.output(pii_type, filename, pii)
+            self.__output(pii_type, filename, pii)
+
+    @staticmethod
+    def __extract_by_extension(filepath: str) -> str:
+
+        """Checks what the file's extension is and extracts the data from the file based on the file type"""
+
+        data = ""
+
+        if filepath.endswith(".docx") or filepath.endswith(".doc"):
+            data = DataExtract.word(filepath)
+
+        elif filepath.endswith(".xlsx") or filepath.endswith(".xlx"):
+            data = DataExtract.excel(filepath)
+
+        elif filepath.endswith(".pdf"):
+            data = DataExtract.pdf(filepath)
+
+        elif filepath.endswith(".txt"):
+            data = DataExtract.text(filepath)
+
+        elif filepath.endswith(".csv"):
+            data = DataExtract.csv(filepath)
+
+        return data
 
     def run(self):
 
         """Recursively iterates over the given folder's files and then sorts the files by extension"""
 
-        data = ""
-
         for filename in glob.iglob(f'{self.scan_path}\\**', recursive=True):
             print(filename)
-            is_extension = False
+            data = self.__extract_by_extension(filename)
 
-            if filename.endswith(".docx") or filename.endswith(".doc"):
-                data = DataExtract.word(filename)
-                is_extension = True
-
-            elif filename.endswith(".xlsx") or filename.endswith(".xlx"):
-                data = DataExtract.excel(filename)
-                is_extension = True
-
-            elif filename.endswith(".pdf"):
-                data = DataExtract.pdf(filename)
-                is_extension = True
-
-            elif filename.endswith(".txt"):
-                data = DataExtract.text(filename)
-                is_extension = True
-
-            elif filename.endswith(".csv"):
-                data = DataExtract.csv(filename)
-                is_extension = True
-
-            if is_extension:
-                self.ssn_process(data, filename)
-                self.cc_process(data, filename)
+            if data:
+                self.__ssn_process(data, filename)
+                self.__cc_process(data, filename)
 
         print("*** Scan is Complete ***")
 
